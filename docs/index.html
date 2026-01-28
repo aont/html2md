@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HTML → Markdown Converter</title>
+
+  <!-- Turndown (HTML -> Markdown) -->
+  <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+  <script src="https://unpkg.com/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid currentColor;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #8886;
+      box-sizing: border-box;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 1000px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .label {
+      font-weight: 700;
+    }
+
+    .status {
+      font-size: 14px;
+      opacity: .85;
+    }
+
+    .hint {
+      font-size: 13px;
+      opacity: .75;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #8882;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>HTML → Markdown Conversion</h1>
+
+  <div class="row">
+    <button id="btnPaste">Paste (clipboard → A)</button>
+    <button id="btnConvert">Convert (A → Markdown → B)</button>
+    <button id="btnCopy">Copy (B → clipboard)</button>
+    <span id="status" class="status"></span>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="label">Textarea (A): HTML</div>
+      <textarea id="taHtml" placeholder="Click Paste to insert HTML from the clipboard here."></textarea>
+      <div class="hint">
+        If there is no HTML in the clipboard, it will read plain text instead (the Markdown result may not be ideal).
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="label">Textarea (B): Markdown</div>
+      <textarea id="taMd" placeholder="Click Convert to output Markdown here."></textarea>
+      <div class="hint">
+        The Clipboard API works only on <code>https</code> or <code>localhost</code>.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const btnPaste = document.getElementById("btnPaste");
+    const btnConvert = document.getElementById("btnConvert");
+    const btnCopy = document.getElementById("btnCopy");
+    const taHtml = document.getElementById("taHtml");
+    const taMd = document.getElementById("taMd");
+    const statusEl = document.getElementById("status");
+
+    const setStatus = (msg, isError = false) => {
+      statusEl.textContent = msg;
+      statusEl.style.color = isError ? "crimson" : "";
+      if (msg) setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ""; }, 4000);
+    };
+
+    const ensureClipboard = () => {
+      if (!navigator.clipboard) {
+        throw new Error("navigator.clipboard is not available in this browser. Make sure you're using HTTPS or localhost.");
+      }
+    };
+
+    async function readHtmlFromClipboard() {
+      ensureClipboard();
+
+      // If possible, prefer clipboard.read() to get text/html
+      if (navigator.clipboard.read) {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          if (item.types && item.types.includes("text/html")) {
+            const blob = await item.getType("text/html");
+            return await blob.text();
+          }
+        }
+        // If no text/html, try text/plain
+        for (const item of items) {
+          if (item.types && item.types.includes("text/plain")) {
+            const blob = await item.getType("text/plain");
+            return await blob.text();
+          }
+        }
+        return "";
+      }
+
+      // Fallback for older environments
+      if (navigator.clipboard.readText) {
+        return await navigator.clipboard.readText();
+      }
+
+      throw new Error("Clipboard read API is not available.");
+    }
+
+    async function writeTextToClipboard(text) {
+      ensureClipboard();
+
+      if (navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      throw new Error("Clipboard write API is not available.");
+    }
+
+    btnPaste.addEventListener("click", async () => {
+      btnPaste.disabled = true;
+      try {
+        const html = await readHtmlFromClipboard();
+        taHtml.value = html || "";
+        setStatus(html ? "Pasted (updated A)" : "No readable clipboard content found", !html);
+      } catch (e) {
+        setStatus(e.message || String(e), true);
+      } finally {
+        btnPaste.disabled = false;
+      }
+    });
+
+    btnConvert.addEventListener("click", () => {
+      try {
+        if (!window.TurndownService) {
+          throw new Error("Failed to load Turndown (check network settings or extension blocking).");
+        }
+        const turndownService = new TurndownService({
+          headingStyle: "atx",
+          codeBlockStyle: "fenced",
+          emDelimiter: "_",
+          bulletListMarker: "-",
+        });
+        turndownService.use(turndownPluginGfm.gfm);
+        turndownService.addRule('removeHr', {
+          filter: 'hr',
+          replacement: function () {
+            return ''; // output nothing
+          }
+        });
+        const html = taHtml.value || "";
+        const md = turndownService.turndown(html);
+        taMd.value = md;
+        setStatus("Converted (updated B)");
+      } catch (e) {
+        setStatus(e.message || String(e), true);
+      }
+    });
+
+    btnCopy.addEventListener("click", async () => {
+      btnCopy.disabled = true;
+      try {
+        const text = taMd.value || "";
+        await writeTextToClipboard(text);
+        setStatus("Copied (B → clipboard)");
+      } catch (e) {
+        setStatus(e.message || String(e), true);
+      } finally {
+        btnCopy.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
