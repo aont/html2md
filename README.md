@@ -9,11 +9,11 @@ UI for pasting HTML, converting it to Markdown, and copying the result back to y
 - Paste HTML from the clipboard into the left textarea.
 - Convert HTML to Markdown (GitHub Flavored Markdown rules enabled).
 - Copy the generated Markdown to the clipboard.
-- Works as a single static file (`docs/index.html`) with no build step.
+- Works as a single static file (`public/index.html`) with no build step.
 
 ## Usage
 
-1. Open `docs/index.html` in a browser.
+1. Open `public/index.html` in a browser.
 2. Click **Paste (clipboard → A)** to read HTML/text from the clipboard.
 3. Click **Convert (A → Markdown → B)** to generate Markdown.
 4. Click **Copy (B → clipboard)** to copy the Markdown output.
@@ -23,7 +23,7 @@ UI for pasting HTML, converting it to Markdown, and copying the result back to y
 
 ## Development
 
-This project is a single-page HTML file. Edit `docs/index.html` directly to update the UI or
+This project is a single-page HTML file. Edit `public/index.html` directly to update the UI or
 conversion behavior.
 
 ## License
