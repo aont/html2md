@@ -1,9 +1,8 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>HTML → Markdown Converter</title>
 
   <!-- Turndown (HTML -> Markdown) -->
@@ -11,113 +10,190 @@
   <script src="https://unpkg.com/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
 
   <style>
-    :root {
-      color-scheme: light dark;
-    }
-
-    body {
+    /* ===== base ===== */
+    body{
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      margin: 16px;
+      margin: 2rem;
+      background:#f5f5f5;
+      color:#222;
     }
-
-    .row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    button {
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid currentColor;
-      background: transparent;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 220px;
-      padding: 12px;
+    main{
+      max-width: 960px;
+      margin: 0 auto;
+      background:#fff;
+      padding: 2rem;
       border-radius: 12px;
-      border: 1px solid #8886;
-      box-sizing: border-box;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+    }
+    h1{ margin-top: 0; }
+    p.lead{ margin-top: .25rem; color:#4a5568; }
+
+    /* ===== Layout ===== */
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap: .75rem;
+      align-items:center;
+      margin: 1.25rem 0 1.5rem;
     }
 
-    .grid {
-      display: grid;
+    form{
+      display:grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 1.5rem;
+    }
+    .field-group{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+      align-items:start;
     }
 
-    @media (min-width: 1000px) {
-      .grid {
-        grid-template-columns: 1fr 1fr;
-      }
+    .panel{
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+      min-width: 0;
+    }
+    label{
+      font-weight: 600;
+      display:block;
+      margin-bottom: .25rem;
     }
 
-    .panel {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    textarea{
+      width:100%;
+      min-height: 260px;
+      padding: .75rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background:#fafafa;
+      box-sizing:border-box;
+      resize: vertical;
+    }
+    textarea:focus{
+      outline: none;
+      border-color:#2b6cb0;
+      box-shadow: 0 0 0 3px rgba(43,108,176,.15);
     }
 
-    .label {
-      font-weight: 700;
+    .subtle{
+      color:#4a5568;
+      font-size: .9rem;
+      margin: 0;
     }
 
-    .status {
-      font-size: 14px;
-      opacity: .85;
-    }
-
-    .hint {
-      font-size: 13px;
-      opacity: .75;
-    }
-
-    code {
+    code{
       padding: 2px 6px;
       border-radius: 6px;
-      background: #8882;
+      background: #edf2f7;
     }
+
+    /* ===== Buttons ===== */
+    .button{
+      padding: .75rem 1.25rem;
+      background:#2b6cb0;
+      color:#fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1.1;
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      user-select:none;
+    }
+    .button:hover{ background:#2c5282; }
+    .button:disabled{
+      cursor:not-allowed;
+      opacity:.6;
+    }
+
+    .button.secondary{
+      background:#4a5568;
+      font-size:.95rem;
+      padding:.6rem 1rem;
+    }
+    .button.secondary:hover{ background:#2d3748; }
+
+    /* ===== Status / Logs ===== */
+    .status-pill{
+      padding: .25rem .6rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      background:#e2e8f0;
+      color:#2d3748;
+      white-space: nowrap;
+    }
+    .status-pill.ok{
+      background:#c6f6d5;
+      color:#22543d;
+    }
+    .status-pill.error{
+      background:#fed7d7;
+      color:#742a2a;
+    }
+
+    .logs{
+      margin-top: 1.5rem;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      background:#1a202c;
+      color:#edf2f7;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+      border: 2px solid #a0aec0; /* neutral */
+    }
+    .logs.success{ border-color:#48bb78; }
+    .logs.failure{ border-color:#f56565; }
+    .logs pre{
+      margin:0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92rem;
+    }
+    .hidden{ display:none; }
   </style>
 </head>
 
 <body>
-  <h1>HTML → Markdown Conversion</h1>
+  <main>
+    <h1>HTML → Markdown Conversion</h1>
+    <p class="lead">Paste HTML, convert to Markdown, and copy the result.</p>
 
-  <div class="row">
-    <button id="btnPaste">Paste (clipboard → A)</button>
-    <button id="btnConvert">Convert (A → Markdown → B)</button>
-    <button id="btnCopy">Copy (B → clipboard)</button>
-    <span id="status" class="status"></span>
-  </div>
-
-  <div class="grid">
-    <div class="panel">
-      <div class="label">Textarea (A): HTML</div>
-      <textarea id="taHtml" placeholder="Click Paste to insert HTML from the clipboard here."></textarea>
-      <div class="hint">
-        If there is no HTML in the clipboard, it will read plain text instead (the Markdown result may not be ideal).
-      </div>
+    <div class="toolbar" role="group" aria-label="Actions">
+      <button class="button secondary" id="btnPaste" type="button">Paste (clipboard → A)</button>
+      <button class="button" id="btnConvert" type="button">Convert (A → Markdown → B)</button>
+      <button class="button secondary" id="btnCopy" type="button">Copy (B → clipboard)</button>
+      <span id="status" class="status-pill">ready</span>
     </div>
 
-    <div class="panel">
-      <div class="label">Textarea (B): Markdown</div>
-      <textarea id="taMd" placeholder="Click Convert to output Markdown here."></textarea>
-      <div class="hint">
-        The Clipboard API works only on <code>https</code> or <code>localhost</code>.
+    <form novalidate>
+      <div class="field-group">
+        <div class="panel">
+          <label for="taHtml">Textarea (A): HTML</label>
+          <textarea id="taHtml" placeholder="Click Paste to insert HTML from the clipboard here."></textarea>
+          <p class="subtle">
+            If there is no HTML in the clipboard, it will read plain text instead (the Markdown result may not be ideal).
+          </p>
+        </div>
+
+        <div class="panel">
+          <label for="taMd">Textarea (B): Markdown</label>
+          <textarea id="taMd" placeholder="Click Convert to output Markdown here."></textarea>
+          <p class="subtle">
+            The Clipboard API works only on <code>https</code> or <code>localhost</code>.
+          </p>
+        </div>
       </div>
-    </div>
-  </div>
+    </form>
+
+    <section id="logBox" class="logs hidden" aria-live="polite">
+      <pre id="logText"></pre>
+    </section>
+  </main>
 
   <script>
     const btnPaste = document.getElementById("btnPaste");
@@ -127,10 +203,27 @@
     const taMd = document.getElementById("taMd");
     const statusEl = document.getElementById("status");
 
-    const setStatus = (msg, isError = false) => {
+    const logBox = document.getElementById("logBox");
+    const logText = document.getElementById("logText");
+
+    const setStatus = (msg, state = "neutral") => {
       statusEl.textContent = msg;
-      statusEl.style.color = isError ? "crimson" : "";
-      if (msg) setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ""; }, 4000);
+      statusEl.classList.remove("ok", "error");
+      if (state === "ok") statusEl.classList.add("ok");
+      if (state === "error") statusEl.classList.add("error");
+    };
+
+    const showLog = (msg, ok = null) => {
+      logBox.classList.remove("hidden", "success", "failure");
+      if (ok === true) logBox.classList.add("success");
+      else if (ok === false) logBox.classList.add("failure");
+      logText.textContent = msg;
+    };
+
+    const clearLog = () => {
+      logBox.classList.add("hidden");
+      logText.textContent = "";
+      logBox.classList.remove("success", "failure");
     };
 
     const ensureClipboard = () => {
@@ -142,7 +235,6 @@
     async function readHtmlFromClipboard() {
       ensureClipboard();
 
-      // If possible, prefer clipboard.read() to get text/html
       if (navigator.clipboard.read) {
         const items = await navigator.clipboard.read();
         for (const item of items) {
@@ -151,7 +243,6 @@
             return await blob.text();
           }
         }
-        // If no text/html, try text/plain
         for (const item of items) {
           if (item.types && item.types.includes("text/plain")) {
             const blob = await item.getType("text/plain");
@@ -161,7 +252,6 @@
         return "";
       }
 
-      // Fallback for older environments
       if (navigator.clipboard.readText) {
         return await navigator.clipboard.readText();
       }
@@ -171,7 +261,6 @@
 
     async function writeTextToClipboard(text) {
       ensureClipboard();
-
       if (navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
         return;
@@ -181,18 +270,29 @@
 
     btnPaste.addEventListener("click", async () => {
       btnPaste.disabled = true;
+      clearLog();
+      setStatus("reading clipboard…");
       try {
         const html = await readHtmlFromClipboard();
         taHtml.value = html || "";
-        setStatus(html ? "Pasted (updated A)" : "No readable clipboard content found", !html);
+        if (html) {
+          setStatus("pasted (updated A)", "ok");
+          showLog("Pasted HTML/text into A.", true);
+        } else {
+          setStatus("no readable clipboard content", "error");
+          showLog("No readable clipboard content found.", false);
+        }
       } catch (e) {
-        setStatus(e.message || String(e), true);
+        setStatus("paste failed", "error");
+        showLog(e.message || String(e), false);
       } finally {
         btnPaste.disabled = false;
       }
     });
 
     btnConvert.addEventListener("click", () => {
+      clearLog();
+      setStatus("converting…");
       try {
         if (!window.TurndownService) {
           throw new Error("Failed to load Turndown (check network settings or extension blocking).");
@@ -204,34 +304,41 @@
           bulletListMarker: "-",
         });
         turndownService.use(turndownPluginGfm.gfm);
-        turndownService.addRule('removeHr', {
-          filter: 'hr',
-          replacement: function () {
-            return ''; // output nothing
-          }
+        turndownService.addRule("removeHr", {
+          filter: "hr",
+          replacement: function () { return ""; }
         });
+
         const html = taHtml.value || "";
         const md = turndownService.turndown(html);
         taMd.value = md;
-        setStatus("Converted (updated B)");
+
+        setStatus("converted (updated B)", "ok");
+        showLog("Converted A → Markdown and updated B.", true);
       } catch (e) {
-        setStatus(e.message || String(e), true);
+        setStatus("convert failed", "error");
+        showLog(e.message || String(e), false);
       }
     });
 
     btnCopy.addEventListener("click", async () => {
       btnCopy.disabled = true;
+      clearLog();
+      setStatus("copying…");
       try {
         const text = taMd.value || "";
         await writeTextToClipboard(text);
-        setStatus("Copied (B → clipboard)");
+        setStatus("copied (B → clipboard)", "ok");
+        showLog("Copied Markdown from B to clipboard.", true);
       } catch (e) {
-        setStatus(e.message || String(e), true);
+        setStatus("copy failed", "error");
+        showLog(e.message || String(e), false);
       } finally {
         btnCopy.disabled = false;
       }
     });
+
+    setStatus("ready");
   </script>
 </body>
-
 </html>
