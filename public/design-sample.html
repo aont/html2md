@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HTML → Markdown Converter | Design Sample</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 2rem;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+      display: grid;
+      gap: 2rem;
+    }
+
+    h1, h2 {
+      margin: 0;
+    }
+
+    .lead {
+      margin: .25rem 0 0;
+      color: #4a5568;
+    }
+
+    .sample-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .sample-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1rem;
+      background: #fafafa;
+      display: grid;
+      gap: .65rem;
+    }
+
+    .sample-card h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .sample-card p {
+      margin: 0;
+      color: #4a5568;
+      font-size: .88rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+      margin: .5rem 0 0;
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .field-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      min-width: 0;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: .75rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #fafafa;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    .textarea-focus {
+      border-color: #2b6cb0;
+      box-shadow: 0 0 0 3px rgba(43, 108, 176, .15);
+      outline: none;
+      background: #fff;
+    }
+
+    .subtle {
+      color: #4a5568;
+      font-size: .9rem;
+      margin: 0;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #edf2f7;
+    }
+
+    .button {
+      padding: .75rem 1.25rem;
+      background: #2b6cb0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      line-height: 1.1;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .button.secondary {
+      background: #4a5568;
+      font-size: .95rem;
+      padding: .6rem 1rem;
+    }
+
+    .button.is-hover {
+      background: #2c5282;
+    }
+
+    .button.secondary.is-hover {
+      background: #2d3748;
+    }
+
+    .button.is-disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .status-pill {
+      padding: .25rem .6rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      background: #e2e8f0;
+      color: #2d3748;
+      white-space: nowrap;
+      width: fit-content;
+    }
+
+    .status-pill.ok {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .status-pill.error {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .logs {
+      margin-top: .25rem;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      background: #1a202c;
+      color: #edf2f7;
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
+      border: 2px solid #a0aec0;
+    }
+
+    .logs.success {
+      border-color: #48bb78;
+    }
+
+    .logs.failure {
+      border-color: #f56565;
+    }
+
+    .logs pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92rem;
+    }
+
+    .muted {
+      opacity: .65;
+      border-style: dashed;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>HTML → Markdown Conversion (Design Sample)</h1>
+      <p class="lead">このページは見た目確認専用です。JavaScript は使わず、状態ごとの UI を並べています。</p>
+    </header>
+
+    <section>
+      <h2>画面全体レイアウト見本</h2>
+      <form>
+        <div class="toolbar" role="group" aria-label="Actions preview">
+          <button class="button secondary" type="button">Paste</button>
+          <button class="button" type="button">Convert</button>
+          <button class="button secondary" type="button">Copy</button>
+          <span class="status-pill">ready</span>
+        </div>
+
+        <div class="field-group">
+          <div class="panel">
+            <label>Textarea (A): HTML</label>
+            <textarea>&lt;h2&gt;Example heading&lt;/h2&gt;
+&lt;p&gt;Sample HTML for design check.&lt;/p&gt;</textarea>
+            <p class="subtle">クリップボード入力を想定した説明テキスト。</p>
+          </div>
+          <div class="panel">
+            <label>Textarea (B): Markdown</label>
+            <textarea>## Example heading
+
+Sample HTML for design check.</textarea>
+            <p class="subtle">Clipboard API は <code>https</code> または <code>localhost</code> が必要です。</p>
+          </div>
+        </div>
+
+        <section class="logs" aria-live="polite">
+          <pre>Converted A → Markdown and updated B.</pre>
+        </section>
+      </form>
+    </section>
+
+    <section>
+      <h2>状態別コンポーネント見本</h2>
+      <div class="sample-grid">
+        <article class="sample-card">
+          <h3>Primary / Secondary Button</h3>
+          <div class="toolbar">
+            <button class="button" type="button">Default</button>
+            <button class="button is-hover" type="button">Hover</button>
+            <button class="button is-disabled" type="button">Disabled</button>
+          </div>
+          <div class="toolbar">
+            <button class="button secondary" type="button">Secondary</button>
+            <button class="button secondary is-hover" type="button">Secondary Hover</button>
+            <button class="button secondary is-disabled" type="button">Secondary Disabled</button>
+          </div>
+        </article>
+
+        <article class="sample-card">
+          <h3>Status Pill</h3>
+          <div class="toolbar">
+            <span class="status-pill">ready</span>
+            <span class="status-pill ok">converted</span>
+            <span class="status-pill error">failed</span>
+          </div>
+          <p>実運用時にクラス切り替えされる見た目を固定表示。</p>
+        </article>
+
+        <article class="sample-card">
+          <h3>Logs</h3>
+          <section class="logs"><pre>Neutral log output</pre></section>
+          <section class="logs success"><pre>Success log output</pre></section>
+          <section class="logs failure"><pre>Failure log output</pre></section>
+        </article>
+
+        <article class="sample-card">
+          <h3>Textarea State</h3>
+          <textarea>Default textarea</textarea>
+          <textarea class="textarea-focus">Focused textarea (style preview)</textarea>
+          <textarea class="muted">Disabled-like preview</textarea>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
